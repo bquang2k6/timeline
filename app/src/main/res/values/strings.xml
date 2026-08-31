@@ -662,4 +662,18 @@
     <string name="photo_diag_title">Photo diagnostic</string>
     <string name="photo_no_location_detail">This image has no GPS data. On Android, open Camera → Settings → Location tag / Save location → ON, then take a new photo.</string>
     <string name="photo_has_location">Found: %1$.5f, %2$.5f · %3$s</string>
+    <!-- Photo scan foreground service (like creating_video_notification_title) -->
+    <string name="scanning_photos_notification_title">Scanning photo library</string>
+    <string name="scanning_photos_progress">%1$d/%2$d · %3$d%% · %4$d with location</string>
+    <string name="photo_scan_notification_channel">Photo scan</string>
+    <string name="photo_scan_notification_channel_description">Progress while scanning photos for GPS</string>
+    <string name="photo_scan_completion_channel">Photo scan results</string>
+    <string name="photo_scan_completion_channel_description">Shows when photo scan finishes</string>
+    <string name="photo_scan_complete">Photo scan complete</string>
+    <string name="photo_scan_complete_no_location">Photo scan complete — no locations</string>
+    <string name="photo_scan_cancelled">Photo scan cancelled</string>
+    <string name="photo_scan_cancelled_detail">Scanning was stopped</string>
+    <string name="photo_scan_failed">Photo scan failed</string>
+    <string name="photo_scan_background_title">Continue scanning in background</string>
+    <string name="photo_scan_background_message">Scanning continues even if you leave the app. Allow notifications to see progress (% like video creation) and get an alert when it finishes.</string>
 </resources>

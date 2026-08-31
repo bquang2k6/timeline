@@ -361,6 +361,7 @@ class MainActivity : AppCompatActivity() {
     private var onboardingPage = 0
     private var onboardingReplay = false
     private var photoScanJob: Job? = null
+    private var photoScanCollector: Job? = null
     private var pendingPhotoPoints: List<dev.mahlernim.timelinevisualizer.photos.PhotoPoint> = emptyList()
     private var pendingPhotoJson: String? = null
     private var pendingPhotoMergeExistingJson: String? = null
@@ -450,6 +451,13 @@ class MainActivity : AppCompatActivity() {
     ) { _ ->
         // Whether granted or not, proceed - scanner will warn and diagnose will show redaction
         startPhotoScan()
+    }
+
+    private val requestPhotoScanNotificationPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { _ ->
+        // Like video creation, scan continues even if notification denied – notification just won't show progress after leaving app
+        startPhotoScanService()
     }
 
     private val exportPhotoTimeline = registerForActivityResult(
@@ -636,9 +644,14 @@ class MainActivity : AppCompatActivity() {
             showJournalOnboarding(page = 0, replay = true)
         }
         settingsScreen.scanPhotosButton.setOnClickListener { checkPhotoPermissionAndScan() }
+        settingsScreen.cancelPhotoScanButton.setOnClickListener { dev.mahlernim.timelinevisualizer.photos.PhotoScanService.cancel(applicationContext) }
         settingsScreen.exportPhotoTimelineButton.setOnClickListener { exportPhotoTimelineWithChoice() }
         settingsScreen.importPhotoTimelineButton.setOnClickListener { importPhotoTimelineIntoJournal() }
         settingsScreen.pickSinglePhotoButton.setOnClickListener { pickSinglePhoto.launch(arrayOf("image/*")) }
+        // Re-attach observer if scan was running while activity was recreated (e.g. rotation or return from background) – like video export tray
+        if (dev.mahlernim.timelinevisualizer.photos.PhotoScanCoordinator.state.value?.status == dev.mahlernim.timelinevisualizer.photos.PhotoScanSnapshot.Status.RUNNING) {
+            observePhotoScan()
+        }
         settingsScreen.versionText.text = installedVersionLabel()
         playerScreen.playerBackButton.setOnClickListener { showVideos(acknowledgeCompletion = true) }
         playerScreen.playerShareButton.setOnClickListener { playerUri?.let(::shareVideo) }
@@ -6356,47 +6369,115 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startPhotoScan() {
-        if (photoScanJob?.isActive == true) return
+        // Check notification permission first so progress shows like video (creating_video_notification_title) when user leaves app
+        if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.photo_scan_background_title)
+                    .setMessage(R.string.photo_scan_background_message)
+                    .setNegativeButton(R.string.cancel) { _, _ -> startPhotoScanService() }
+                    .setPositiveButton(R.string.continue_action) { _, _ -> requestPhotoScanNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS) }
+                    .show()
+            } else {
+                requestPhotoScanNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+            return
+        }
+        startPhotoScanService()
+    }
+
+    private fun startPhotoScanService() {
+        // If already running in service, just observe
+        val existing = dev.mahlernim.timelinevisualizer.photos.PhotoScanCoordinator.state.value
+        if (existing?.status == dev.mahlernim.timelinevisualizer.photos.PhotoScanSnapshot.Status.RUNNING) {
+            observePhotoScan()
+            return
+        }
         pendingPhotoPoints = emptyList()
         pendingPhotoJson = null
+        pendingPhotoMergeExistingJson = null
         settingsScreen.photoProgressGroup.visibility = View.VISIBLE
         settingsScreen.photoScanStatus.visibility = View.GONE
         settingsScreen.scanPhotosButton.isEnabled = false
         settingsScreen.exportPhotoTimelineButton.isEnabled = false
         settingsScreen.importPhotoTimelineButton.isEnabled = false
         settingsScreen.photoProgressText.setText(R.string.scanning_photos)
-        photoScanJob = lifecycleScope.launch {
-            val scanner = PhotoLibraryScanner(applicationContext)
-            val result = scanner.scan()
-            pendingPhotoPoints = result.points
-            withContext(Dispatchers.Default) {
-                pendingPhotoJson = PhotoTimelineJsonBuilder.build(result.points)
-                // Prepare merged JSON if existing timeline available
-                pendingPhotoMergeExistingJson = try {
-                    val existingPoints = timeline?.points ?: journalRouteService.let { null } // keep simple: use timeline if loaded else null
-                    if (existingPoints != null && existingPoints.isNotEmpty()) {
-                        PhotoTimelineJsonBuilder.merge(existingPoints, result.points)
-                    } else null
-                } catch (_: Exception) { null }
-            }
-            settingsScreen.photoProgressGroup.visibility = View.GONE
-            settingsScreen.scanPhotosButton.isEnabled = true
-            if (result.points.isEmpty()) {
-                settingsScreen.photoScanStatus.visibility = View.VISIBLE
-                settingsScreen.photoScanStatus.text = getString(R.string.photos_scanned, result.scannedCount, 0) + " — " + getString(R.string.no_geotagged_photos)
-                MaterialAlertDialogBuilder(this@MainActivity)
-                    .setTitle(R.string.photo_diag_title)
-                    .setMessage(getString(R.string.no_geotagged_photos) + "\n\n" + getString(R.string.photo_no_location_detail) + "\n\nĐã quét " + result.scannedCount + " ảnh, 0 ảnh có GPS. Thử 'Kiểm tra một ảnh' để chẩn đoán file cụ thể.")
-                    .setPositiveButton(R.string.pick_single_photo) { _, _ -> pickSinglePhoto.launch(arrayOf("image/*")) }
-                    .setNegativeButton(R.string.cancel, null)
-                    .show()
-                Snackbar.make(binding.root, R.string.no_geotagged_photos, Snackbar.LENGTH_LONG).show()
-            } else {
-                settingsScreen.photoScanStatus.visibility = View.VISIBLE
-                settingsScreen.photoScanStatus.text = getString(R.string.photos_scanned, result.scannedCount, result.points.size)
-                settingsScreen.exportPhotoTimelineButton.isEnabled = true
-                settingsScreen.importPhotoTimelineButton.isEnabled = true
-                Snackbar.make(binding.root, getString(R.string.photos_scanned, result.scannedCount, result.points.size), Snackbar.LENGTH_LONG).show()
+        settingsScreen.photoProgressIndicator.isIndeterminate = true
+        settingsScreen.photoProgressIndicator.setProgressCompat(0, false)
+        dev.mahlernim.timelinevisualizer.photos.PhotoScanService.start(applicationContext)
+        observePhotoScan()
+    }
+
+    private fun observePhotoScan() {
+        photoScanCollector?.cancel()
+        photoScanCollector = lifecycleScope.launch {
+            dev.mahlernim.timelinevisualizer.photos.PhotoScanCoordinator.state.collect { snapshot ->
+                if (snapshot == null) return@collect
+                when (snapshot.status) {
+                    dev.mahlernim.timelinevisualizer.photos.PhotoScanSnapshot.Status.RUNNING -> {
+                        settingsScreen.photoProgressGroup.visibility = View.VISIBLE
+                        settingsScreen.scanPhotosButton.isEnabled = false
+                        settingsScreen.exportPhotoTimelineButton.isEnabled = false
+                        settingsScreen.importPhotoTimelineButton.isEnabled = false
+                        if (snapshot.total > 0) {
+                            settingsScreen.photoProgressIndicator.isIndeterminate = false
+                            settingsScreen.photoProgressIndicator.setProgressCompat(snapshot.percent, true)
+                            settingsScreen.photoProgressText.text = getString(R.string.scanning_photos_progress, snapshot.scanned, snapshot.total, snapshot.percent, snapshot.withLocation)
+                        } else {
+                            settingsScreen.photoProgressIndicator.isIndeterminate = true
+                            settingsScreen.photoProgressText.text = getString(R.string.scanning_photos) + " ${snapshot.scanned}"
+                        }
+                    }
+                    dev.mahlernim.timelinevisualizer.photos.PhotoScanSnapshot.Status.COMPLETE -> {
+                        val result = snapshot.result ?: return@collect
+                        lifecycleScope.launch(Dispatchers.Default) {
+                            pendingPhotoPoints = result.points
+                            pendingPhotoJson = dev.mahlernim.timelinevisualizer.photos.PhotoTimelineJsonBuilder.build(result.points)
+                            pendingPhotoMergeExistingJson = try {
+                                val existingPoints = timeline?.points
+                                if (existingPoints != null && existingPoints.isNotEmpty()) {
+                                    dev.mahlernim.timelinevisualizer.photos.PhotoTimelineJsonBuilder.merge(existingPoints, result.points)
+                                } else null
+                            } catch (_: Exception) { null }
+                            withContext(Dispatchers.Main) {
+                                settingsScreen.photoProgressGroup.visibility = View.GONE
+                                settingsScreen.scanPhotosButton.isEnabled = true
+                                if (result.points.isEmpty()) {
+                                    settingsScreen.photoScanStatus.visibility = View.VISIBLE
+                                    settingsScreen.photoScanStatus.text = getString(R.string.photos_scanned, result.scannedCount, 0) + " — " + getString(R.string.no_geotagged_photos)
+                                    MaterialAlertDialogBuilder(this@MainActivity)
+                                        .setTitle(R.string.photo_diag_title)
+                                        .setMessage(getString(R.string.no_geotagged_photos) + "\n\n" + getString(R.string.photo_no_location_detail) + "\n\nĐã quét " + result.scannedCount + " ảnh, 0 ảnh có GPS. Thử 'Kiểm tra một ảnh' để chẩn đoán file cụ thể.")
+                                        .setPositiveButton(R.string.pick_single_photo) { _, _ -> pickSinglePhoto.launch(arrayOf("image/*")) }
+                                        .setNegativeButton(R.string.cancel, null)
+                                        .show()
+                                    Snackbar.make(binding.root, R.string.no_geotagged_photos, Snackbar.LENGTH_LONG).show()
+                                } else {
+                                    settingsScreen.photoScanStatus.visibility = View.VISIBLE
+                                    settingsScreen.photoScanStatus.text = getString(R.string.photos_scanned, result.scannedCount, result.points.size)
+                                    settingsScreen.exportPhotoTimelineButton.isEnabled = true
+                                    settingsScreen.importPhotoTimelineButton.isEnabled = true
+                                    Snackbar.make(binding.root, getString(R.string.photos_scanned, result.scannedCount, result.points.size), Snackbar.LENGTH_LONG).show()
+                                }
+                                photoScanCollector?.cancel()
+                            }
+                        }
+                    }
+                    dev.mahlernim.timelinevisualizer.photos.PhotoScanSnapshot.Status.CANCELLED -> {
+                        settingsScreen.photoProgressGroup.visibility = View.GONE
+                        settingsScreen.scanPhotosButton.isEnabled = true
+                        settingsScreen.photoScanStatus.visibility = View.VISIBLE
+                        settingsScreen.photoScanStatus.text = getString(R.string.photo_scan_cancelled)
+                        Snackbar.make(binding.root, R.string.photo_scan_cancelled, Snackbar.LENGTH_SHORT).show()
+                        photoScanCollector?.cancel()
+                    }
+                    dev.mahlernim.timelinevisualizer.photos.PhotoScanSnapshot.Status.FAILED -> {
+                        settingsScreen.photoProgressGroup.visibility = View.GONE
+                        settingsScreen.scanPhotosButton.isEnabled = true
+                        Snackbar.make(binding.root, R.string.photo_scan_failed, Snackbar.LENGTH_LONG).show()
+                        photoScanCollector?.cancel()
+                    }
+                }
             }
         }
     }
@@ -6442,11 +6523,29 @@ class MainActivity : AppCompatActivity() {
 
     private fun importPhotoTimelineIntoJournal() {
         val json = pendingPhotoJson ?: return
+        if (pendingPhotoPoints.isEmpty()) {
+            Snackbar.make(binding.root, R.string.no_geotagged_photos, Snackbar.LENGTH_LONG).show()
+            return
+        }
         lifecycleScope.launch(Dispatchers.IO) {
+            var cacheFile: java.io.File? = null
             try {
-                val cacheFile = java.io.File(cacheDir, "photo_timeline_${System.currentTimeMillis()}.json")
+                // Validate JSON trước khi import – tránh “Không thể tải Timeline” do JSON rỗng/malformed
+                try {
+                    dev.mahlernim.timelinevisualizer.data.TimelineParser().parseWithRawSignals(json.byteInputStream(Charsets.UTF_8))
+                } catch (e: Exception) {
+                    Log.e(TAG, "Photo JSON validation failed", e)
+                    withContext(Dispatchers.Main) {
+                        Snackbar.make(binding.root, "JSON ảnh không hợp lệ: ${e.message}", Snackbar.LENGTH_LONG).show()
+                    }
+                    return@launch
+                }
+                val dir = java.io.File(cacheDir, "photo-timelines").apply { mkdirs() }
+                cacheFile = java.io.File(dir, "photo_timeline_${System.currentTimeMillis()}.json")
                 cacheFile.writeText(json, Charsets.UTF_8)
+                // Grant read so ContentResolver.openInputStream(uri) works trong chính app hay khi importTimeline chuyển qua Journal
                 val uri = FileProvider.getUriForFile(applicationContext, "${packageName}.fileprovider", cacheFile)
+                applicationContext.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 withContext(Dispatchers.Main) {
                     importTimeline(uri)
                     Snackbar.make(binding.root, R.string.photo_timeline_imported, Snackbar.LENGTH_SHORT).show()
@@ -6454,7 +6553,11 @@ class MainActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to import photo timeline", e)
                 withContext(Dispatchers.Main) {
-                    Snackbar.make(binding.root, R.string.import_failed, Snackbar.LENGTH_LONG).show()
+                    MaterialAlertDialogBuilder(this@MainActivity)
+                        .setTitle(R.string.import_failed)
+                        .setMessage("Không thể nhập: ${e.message}\n\nFile đã lưu tại: ${cacheFile?.absolutePath}")
+                        .setPositiveButton(R.string.done, null)
+                        .show()
                 }
             }
         }

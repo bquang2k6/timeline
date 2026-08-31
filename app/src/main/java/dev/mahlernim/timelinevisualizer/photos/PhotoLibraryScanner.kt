@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Build
 import android.provider.MediaStore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import java.time.Instant
 
@@ -24,8 +26,20 @@ class PhotoLibraryScanner(private val context: Context) {
             ) == android.content.pm.PackageManager.PERMISSION_GRANTED
         } else true
 
+    suspend fun countTotal(): Int = withContext(Dispatchers.IO) {
+        try {
+            val projection = arrayOf(MediaStore.Images.Media._ID)
+            val collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            context.contentResolver.query(collection, projection, null, null, null)?.use { c -> c.count } ?: 0
+        } catch (_: Exception) { 0 }
+    }
+
     suspend fun scan(
         onProgress: ((scanned: Int, withLocation: Int) -> Unit)? = null,
+    ): ScanResult = scanWithProgress { scanned, withLocation, _ -> onProgress?.invoke(scanned, withLocation) }
+
+    suspend fun scanWithProgress(
+        onProgress: ((scanned: Int, withLocation: Int, total: Int) -> Unit)? = null,
     ): ScanResult = withContext(Dispatchers.IO) {
         // Warn early if GPS will be redacted
         if (!hasMediaLocationPermission()) {
@@ -58,7 +72,12 @@ class PhotoLibraryScanner(private val context: Context) {
                 val dateTakenColumn = cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN)
                 val dateAddedColumn = cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED)
                 val dateModifiedColumn = cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED)
+                val total = cursor.count
+                // Initial progress with total for notification percent
+                if (total > 0) onProgress?.invoke(0, 0, total)
                 while (cursor.moveToNext()) {
+                    // Cooperative cancellation – lets PhotoScanService cancel foreground scan like VideoExportService
+                    ensureActive()
                     val id = cursor.getLong(idColumn)
                     val dateTaken = if (dateTakenColumn >= 0 && !cursor.isNull(dateTakenColumn)) cursor.getLong(dateTakenColumn) else 0L
                     val dateAdded = if (dateAddedColumn >= 0 && !cursor.isNull(dateAddedColumn)) cursor.getLong(dateAddedColumn) else 0L
@@ -78,7 +97,9 @@ class PhotoLibraryScanner(private val context: Context) {
                     }
                     scanned++
                     if (point != null) points.add(point) else withoutLocation++
-                    if (scanned % 20 == 0) onProgress?.invoke(scanned, points.size)
+                    // Throttle UI to every 1 item for small libs, every 5 for large; service throttles notification itself
+                    if (scanned % 5 == 0 || scanned == total) onProgress?.invoke(scanned, points.size, total)
+                    else if (scanned % 20 == 0) onProgress?.invoke(scanned, points.size, total)
                 }
             }
             // Debug: also try MediaStore.Files for images on all volumes (Android 10+)

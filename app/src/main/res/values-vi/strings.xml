@@ -662,4 +662,17 @@
     <string name="photo_diag_title">Chẩn đoán ảnh</string>
     <string name="photo_no_location_detail">Ảnh này không có dữ liệu GPS. Hãy mở Camera → Cài đặt → Gắn thẻ vị trí / Lưu vị trí → BẬT, sau đó chụp ảnh mới.</string>
     <string name="photo_has_location">Tìm thấy: %1$.5f, %2$.5f · %3$s</string>
+    <string name="scanning_photos_notification_title">Đang quét thư viện ảnh</string>
+    <string name="scanning_photos_progress">%1$d/%2$d · %3$d%% · %4$d có vị trí</string>
+    <string name="photo_scan_notification_channel">Quét ảnh</string>
+    <string name="photo_scan_notification_channel_description">Tiến trình quét ảnh lấy GPS</string>
+    <string name="photo_scan_completion_channel">Kết quả quét ảnh</string>
+    <string name="photo_scan_completion_channel_description">Thông báo khi quét ảnh xong</string>
+    <string name="photo_scan_complete">Quét ảnh xong</string>
+    <string name="photo_scan_complete_no_location">Quét xong — không có ảnh có vị trí</string>
+    <string name="photo_scan_cancelled">Đã hủy quét ảnh</string>
+    <string name="photo_scan_cancelled_detail">Đã dừng quét</string>
+    <string name="photo_scan_failed">Quét ảnh thất bại</string>
+    <string name="photo_scan_background_title">Tiếp tục quét trong nền</string>
+    <string name="photo_scan_background_message">Quét vẫn tiếp tục ngay cả khi bạn thoát app. Hãy cho phép thông báo để xem tiến trình (%% như tạo video) và nhận báo khi xong.</string>
 </resources>

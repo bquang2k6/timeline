@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <cache-path name="cache" path="." />
     <cache-path name="overview_images" path="overview-images/" />
+    <cache-path name="photo_timelines" path="photo-timelines/" />
 </paths>
