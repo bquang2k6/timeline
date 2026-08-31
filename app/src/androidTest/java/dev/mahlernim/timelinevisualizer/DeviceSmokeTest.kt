@@ -75,7 +75,7 @@ class DeviceSmokeTest {
                 add(R.id.longTripDropdown to 4)
                 add(R.id.videoQualityDropdown to 6)
                 add(R.id.frameRateDropdown to 4)
-                add(R.id.languageDropdown to 10)
+                add(R.id.languageDropdown to 11)
                 add(R.id.tripDetectionDropdown to 3)
                 add(R.id.localFramingDropdown to 3)
             }

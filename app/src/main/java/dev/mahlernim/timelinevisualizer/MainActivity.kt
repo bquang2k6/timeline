@@ -3798,6 +3798,7 @@ class MainActivity : AppCompatActivity() {
             getString(R.string.language_name_fr),
             getString(R.string.language_name_de),
             getString(R.string.language_name_pt_br),
+            getString(R.string.language_name_vi),
         )
 
     private fun applyLanguageSelection(position: Int) {

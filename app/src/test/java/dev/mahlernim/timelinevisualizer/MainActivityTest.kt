@@ -771,7 +771,7 @@ class MainActivityTest {
             activity.getString(R.string.language_system_default),
             activity.findViewById<AutoCompleteTextView>(R.id.languageDropdown).text.toString(),
         )
-        assertEquals(10, activity.findViewById<AutoCompleteTextView>(R.id.languageDropdown).adapter.count)
+        assertEquals(11, activity.findViewById<AutoCompleteTextView>(R.id.languageDropdown).adapter.count)
         assertEquals(
             activity.getString(R.string.app_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE),
             activity.findViewById<TextView>(R.id.versionText).text.toString(),
