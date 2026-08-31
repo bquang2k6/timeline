@@ -620,6 +620,7 @@
     <string name="onboarding_v11_start_title">Start your Travel Journal</string>
     <string name="onboarding_v11_start_body">Export an updated Timeline.json file from Google Maps, then choose it here. Large histories may take a little longer the first time. Future imports add new detail to the same Journal.</string>
     <string name="onboarding_file_name_hint">Usually named Timeline.json or location-history.json.</string>
+    <string name="onboarding_scan_photos_hint">No export yet? Build a Timeline directly from your geotagged photos.</string>
     <string name="onboarding_file_disclosure_title">What happens to my file?</string>
     <string name="onboarding_file_disclosure_detail">The selected export is read locally. Its useful journey information is added to your on-device Travel Journal, and future updated exports can extend it.</string>
     <string name="settings_why_import_title">Why import an updated file?</string>

@@ -1159,6 +1159,12 @@ class MainActivity : AppCompatActivity() {
             showJournalSetup(returnToCreate = false)
             requestTimelineImport()
         }
+        onboarding.onboardingScanPhotosButton.setOnClickListener {
+            journalOnboardingStore.complete()
+            showSettings(fromCreate = false)
+            // Small delay so settings screen is visible before permission dialog
+            binding.root.post { checkPhotoPermissionAndScan() }
+        }
         onboarding.onboardingSetupMapsButton.setOnClickListener {
             journalOnboardingStore.complete()
             showJournalSetup(returnToCreate = false)

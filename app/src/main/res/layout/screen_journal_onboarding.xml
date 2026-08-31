@@ -146,6 +146,33 @@
                 android:text="@string/onboarding_file_name_hint"
                 android:textAppearance="?attr/textAppearanceBodySmall" />
 
+            <!-- Photo library alternative: scan geotagged photos to build Timeline without export -->
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="2dp"
+                app:dividerThickness="1dp"
+                app:dividerColor="?attr/colorOutlineVariant" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_horizontal"
+                android:text="@string/onboarding_scan_photos_hint"
+                android:textAppearance="?attr/textAppearanceBodySmall" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/onboardingScanPhotosButton"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/scan_photo_library"
+                app:icon="@android:drawable/ic_menu_gallery"
+                app:iconGravity="textStart" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/onboardingSetupMapsButton"
                 style="@style/Widget.Material3.Button.OutlinedButton"

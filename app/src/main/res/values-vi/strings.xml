@@ -620,6 +620,7 @@
     <string name="onboarding_v11_start_title">Bắt đầu Nhật ký du lịch của bạn</string>
     <string name="onboarding_v11_start_body">Xuất một tệp Timeline.json đã cập nhật từ Google Maps, sau đó chọn nó ở đây. Các lịch sử lớn có thể mất một chút thời gian lâu hơn lần đầu tiên. Các lần nhập khẩu trong tương lai sẽ thêm chi tiết mới vào cùng một Nhật ký.</string>
     <string name="onboarding_file_name_hint">Thường được đặt tên là Timeline.json hoặc location-history.json.</string>
+    <string name="onboarding_scan_photos_hint">Chưa có file export? Tạo Timeline trực tiếp từ ảnh có gắn vị trí.</string>
     <string name="onboarding_file_disclosure_title">Điều gì xảy ra với tệp của tôi?</string>
     <string name="onboarding_file_disclosure_detail">Xuất khẩu đã chọn được đọc cục bộ. Thông tin hành trình hữu ích của nó được thêm vào Nhật ký du lịch trên thiết bị của bạn, và các xuất khẩu đã cập nhật trong tương lai có thể mở rộng nó.</string>
     <string name="settings_why_import_title">Tại sao nhập một tệp đã cập nhật?</string>
@@ -641,8 +642,8 @@
     <string name="keep_past_routes_visible_summary">Hiển thị các tuyến đường đã hoàn thành như một dấu vết mờ nhạt ở nền. Khi tắt, chuyển động cũ sẽ mờ đi.</string>
     <!-- Photo Timeline feature -->
     <string name="photo_timeline_title">Ảnh → Timeline</string>
-    <string name="photo_timeline_summary">Quét thư viện ảnh để lấy vị trí GPS từ ảnh đã chụp và tạo tệp Timeline JSON có thể nhập và tạo video.</string>
-    <string name="scan_photo_library">Quét thư viện ảnh</string>
+    <string name="photo_timeline_summary">Lấy Timeline từ thư viện ảnh để lấy vị trí GPS từ ảnh đã chụp và tạo tệp Timeline JSON có thể nhập và tạo video.</string>
+    <string name="scan_photo_library">Lấy Timeline từ thư viện ảnh</string>
     <string name="scanning_photos">Đang quét ảnh…</string>
     <string name="photos_scanned">Đã quét %1$d ảnh · %2$d ảnh có vị trí</string>
     <string name="no_geotagged_photos">Không tìm thấy ảnh có gắn vị trí. Hãy bật gắn vị trí trong camera và thử lại.</string>
@@ -662,7 +663,7 @@
     <string name="photo_diag_title">Chẩn đoán ảnh</string>
     <string name="photo_no_location_detail">Ảnh này không có dữ liệu GPS. Hãy mở Camera → Cài đặt → Gắn thẻ vị trí / Lưu vị trí → BẬT, sau đó chụp ảnh mới.</string>
     <string name="photo_has_location">Tìm thấy: %1$.5f, %2$.5f · %3$s</string>
-    <string name="scanning_photos_notification_title">Đang quét thư viện ảnh</string>
+    <string name="scanning_photos_notification_title">Đang lấy Timeline từ thư viện ảnh</string>
     <string name="scanning_photos_progress">%1$d/%2$d · %3$d%% · %4$d có vị trí</string>
     <string name="photo_scan_notification_channel">Quét ảnh</string>
     <string name="photo_scan_notification_channel_description">Tiến trình quét ảnh lấy GPS</string>
