@@ -16,6 +16,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.provider.MediaStore
 import android.provider.Settings
 import android.provider.OpenableColumns
 import android.text.InputType
@@ -182,6 +183,9 @@ import dev.mahlernim.timelinevisualizer.trips.OfflineDestinationNameResolver
 import dev.mahlernim.timelinevisualizer.trips.TripCoverage
 import dev.mahlernim.timelinevisualizer.trips.TripCoverageCalculator
 import dev.mahlernim.timelinevisualizer.trips.ProjectTitleMode
+import dev.mahlernim.timelinevisualizer.photos.PhotoExifReader
+import dev.mahlernim.timelinevisualizer.photos.PhotoLibraryScanner
+import dev.mahlernim.timelinevisualizer.photos.PhotoTimelineJsonBuilder
 import dev.mahlernim.timelinevisualizer.trips.RecapPeriodRules
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
@@ -356,6 +360,10 @@ class MainActivity : AppCompatActivity() {
     private var pendingJournalReminderId: String? = null
     private var onboardingPage = 0
     private var onboardingReplay = false
+    private var photoScanJob: Job? = null
+    private var pendingPhotoPoints: List<dev.mahlernim.timelinevisualizer.photos.PhotoPoint> = emptyList()
+    private var pendingPhotoJson: String? = null
+    private var pendingPhotoMergeExistingJson: String? = null
 
     private val openTimeline = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) importTimeline(uri)
@@ -401,6 +409,62 @@ class MainActivity : AppCompatActivity() {
     private val appUpdateLauncher = registerForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult(),
     ) { }
+
+    private val requestPhotoPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        if (granted) {
+            // Chain: after READ_MEDIA_IMAGES granted, ensure ACCESS_MEDIA_LOCATION too
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !hasMediaLocationPermission()) {
+                requestMediaLocationPermission.launch(Manifest.permission.ACCESS_MEDIA_LOCATION)
+            } else startPhotoScan()
+        } else {
+            com.google.android.material.snackbar.Snackbar.make(binding.root, R.string.photo_permission_required, com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
+                .setAction(R.string.settings) { openAppSettings() }
+                .show()
+        }
+    }
+
+    private val requestPhotoPermissions = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { grants ->
+        val storageGranted = grants[photoPermission()] == true
+        val locGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            grants[Manifest.permission.ACCESS_MEDIA_LOCATION] != false // if not requested, treat as granted on <Q
+                || hasMediaLocationPermission()
+        } else true
+        if (storageGranted) {
+            if (!locGranted) {
+                com.google.android.material.snackbar.Snackbar.make(binding.root, "Đã cấp quyền ảnh nhưng thiếu quyền vị trí media - GPS cũ có thể bị che (0,0). Vào Cài đặt để cấp ACCESS_MEDIA_LOCATION rồi quét lại.", com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
+                    .setAction(R.string.settings) { openAppSettings() }.show()
+            }
+            startPhotoScan()
+        } else {
+            com.google.android.material.snackbar.Snackbar.make(binding.root, R.string.photo_permission_required, com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
+                .setAction(R.string.settings) { openAppSettings() }.show()
+        }
+    }
+
+    private val requestMediaLocationPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { _ ->
+        // Whether granted or not, proceed - scanner will warn and diagnose will show redaction
+        startPhotoScan()
+    }
+
+    private val exportPhotoTimeline = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json"),
+    ) { uri ->
+        if (uri != null && pendingPhotoJson != null) {
+            writePhotoJsonToUri(uri, pendingPhotoJson!!)
+        }
+    }
+
+    private val pickSinglePhoto = registerForActivityResult(
+        ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri != null) diagnoseSinglePhoto(uri)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -571,6 +635,10 @@ class MainActivity : AppCompatActivity() {
         settingsScreen.settingsJournalHowItWorksButton.setOnClickListener {
             showJournalOnboarding(page = 0, replay = true)
         }
+        settingsScreen.scanPhotosButton.setOnClickListener { checkPhotoPermissionAndScan() }
+        settingsScreen.exportPhotoTimelineButton.setOnClickListener { exportPhotoTimelineWithChoice() }
+        settingsScreen.importPhotoTimelineButton.setOnClickListener { importPhotoTimelineIntoJournal() }
+        settingsScreen.pickSinglePhotoButton.setOnClickListener { pickSinglePhoto.launch(arrayOf("image/*")) }
         settingsScreen.versionText.text = installedVersionLabel()
         playerScreen.playerBackButton.setOnClickListener { showVideos(acknowledgeCompletion = true) }
         playerScreen.playerShareButton.setOnClickListener { playerUri?.let(::shareVideo) }
@@ -6231,6 +6299,203 @@ class MainActivity : AppCompatActivity() {
         val initialJourney: Journey,
         val ignoredCount: Int,
     )
+
+    // --- Photo Timeline feature ---
+    private fun photoPermission(): String = if (Build.VERSION.SDK_INT >= 33) {
+        Manifest.permission.READ_MEDIA_IMAGES
+    } else {
+        Manifest.permission.READ_EXTERNAL_STORAGE
+    }
+
+    private fun hasPhotoPermission(): Boolean =
+        ContextCompat.checkSelfPermission(this, photoPermission()) == PackageManager.PERMISSION_GRANTED
+
+    private fun hasMediaLocationPermission(): Boolean =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED
+        } else true
+
+    private fun allPhotoPermissions(): Array<String> = buildList {
+        add(photoPermission())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) add(Manifest.permission.ACCESS_MEDIA_LOCATION)
+    }.toTypedArray()
+
+    private fun checkPhotoPermissionAndScan() {
+        val needsStorage = !hasPhotoPermission()
+        val needsLocation = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !hasMediaLocationPermission()
+        if (!needsStorage && !needsLocation) {
+            startPhotoScan(); return
+        }
+        // If only ACCESS_MEDIA_LOCATION missing but storage already granted, request it directly
+        if (!needsStorage && needsLocation) {
+            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_MEDIA_LOCATION)) {
+                MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.photo_permission_required)
+                    .setMessage("Cần thêm quyền vị trí media (ACCESS_MEDIA_LOCATION) để đọc GPS không bị che. Trên Android 10+ nếu thiếu quyền này, hệ thống sẽ trả GPS 0/1,0/1,0/1 dù ảnh gốc có GPS (như chẩn đoán của bạn). Giống exiftoolwrapper-android, cấp quyền này rồi quét lại sẽ ra GPS 10.74, 106.67.")
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.continue_action) { _, _ -> requestMediaLocationPermission.launch(Manifest.permission.ACCESS_MEDIA_LOCATION) }
+                    .show()
+            } else {
+                requestMediaLocationPermission.launch(Manifest.permission.ACCESS_MEDIA_LOCATION)
+            }
+            return
+        }
+        // Need storage (and maybe location) -> request together via RequestMultiplePermissions
+        if (needsStorage) {
+            if (shouldShowRequestPermissionRationale(photoPermission())) {
+                MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.photo_permission_required)
+                    .setMessage(R.string.photo_permission_rationale)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.continue_action) { _, _ -> requestPhotoPermissions.launch(allPhotoPermissions()) }
+                    .show()
+            } else {
+                requestPhotoPermissions.launch(allPhotoPermissions())
+            }
+        }
+    }
+
+    private fun startPhotoScan() {
+        if (photoScanJob?.isActive == true) return
+        pendingPhotoPoints = emptyList()
+        pendingPhotoJson = null
+        settingsScreen.photoProgressGroup.visibility = View.VISIBLE
+        settingsScreen.photoScanStatus.visibility = View.GONE
+        settingsScreen.scanPhotosButton.isEnabled = false
+        settingsScreen.exportPhotoTimelineButton.isEnabled = false
+        settingsScreen.importPhotoTimelineButton.isEnabled = false
+        settingsScreen.photoProgressText.setText(R.string.scanning_photos)
+        photoScanJob = lifecycleScope.launch {
+            val scanner = PhotoLibraryScanner(applicationContext)
+            val result = scanner.scan()
+            pendingPhotoPoints = result.points
+            withContext(Dispatchers.Default) {
+                pendingPhotoJson = PhotoTimelineJsonBuilder.build(result.points)
+                // Prepare merged JSON if existing timeline available
+                pendingPhotoMergeExistingJson = try {
+                    val existingPoints = timeline?.points ?: journalRouteService.let { null } // keep simple: use timeline if loaded else null
+                    if (existingPoints != null && existingPoints.isNotEmpty()) {
+                        PhotoTimelineJsonBuilder.merge(existingPoints, result.points)
+                    } else null
+                } catch (_: Exception) { null }
+            }
+            settingsScreen.photoProgressGroup.visibility = View.GONE
+            settingsScreen.scanPhotosButton.isEnabled = true
+            if (result.points.isEmpty()) {
+                settingsScreen.photoScanStatus.visibility = View.VISIBLE
+                settingsScreen.photoScanStatus.text = getString(R.string.photos_scanned, result.scannedCount, 0) + " — " + getString(R.string.no_geotagged_photos)
+                MaterialAlertDialogBuilder(this@MainActivity)
+                    .setTitle(R.string.photo_diag_title)
+                    .setMessage(getString(R.string.no_geotagged_photos) + "\n\n" + getString(R.string.photo_no_location_detail) + "\n\nĐã quét " + result.scannedCount + " ảnh, 0 ảnh có GPS. Thử 'Kiểm tra một ảnh' để chẩn đoán file cụ thể.")
+                    .setPositiveButton(R.string.pick_single_photo) { _, _ -> pickSinglePhoto.launch(arrayOf("image/*")) }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+                Snackbar.make(binding.root, R.string.no_geotagged_photos, Snackbar.LENGTH_LONG).show()
+            } else {
+                settingsScreen.photoScanStatus.visibility = View.VISIBLE
+                settingsScreen.photoScanStatus.text = getString(R.string.photos_scanned, result.scannedCount, result.points.size)
+                settingsScreen.exportPhotoTimelineButton.isEnabled = true
+                settingsScreen.importPhotoTimelineButton.isEnabled = true
+                Snackbar.make(binding.root, getString(R.string.photos_scanned, result.scannedCount, result.points.size), Snackbar.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun exportPhotoTimelineWithChoice() {
+        val json = pendingPhotoJson ?: return
+        val hasExisting = timeline != null || activeJournal != null
+        if (hasExisting && pendingPhotoMergeExistingJson != null) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.photo_timeline_merge_title)
+                .setMessage(getString(R.string.photo_timeline_merge_message, pendingPhotoPoints.size))
+                .setNegativeButton(R.string.export_photos_only) { _, _ ->
+                    pendingPhotoJson = PhotoTimelineJsonBuilder.build(pendingPhotoPoints)
+                    exportPhotoTimeline.launch(getString(R.string.photo_json_filename))
+                }
+                .setPositiveButton(R.string.merge_and_export) { _, _ ->
+                    pendingPhotoJson = pendingPhotoMergeExistingJson
+                    exportPhotoTimeline.launch(getString(R.string.merged_timeline_filename))
+                }
+                .show()
+        } else {
+            exportPhotoTimeline.launch(getString(R.string.photo_json_filename))
+        }
+    }
+
+    private fun writePhotoJsonToUri(uri: Uri, json: String) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                contentResolver.openOutputStream(uri)?.use { out ->
+                    out.write(json.toByteArray(Charsets.UTF_8))
+                }
+                withContext(Dispatchers.Main) {
+                    Snackbar.make(binding.root, R.string.photo_timeline_exported, Snackbar.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to write photo JSON", e)
+                withContext(Dispatchers.Main) {
+                    Snackbar.make(binding.root, R.string.save_as_failed, Snackbar.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun importPhotoTimelineIntoJournal() {
+        val json = pendingPhotoJson ?: return
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val cacheFile = java.io.File(cacheDir, "photo_timeline_${System.currentTimeMillis()}.json")
+                cacheFile.writeText(json, Charsets.UTF_8)
+                val uri = FileProvider.getUriForFile(applicationContext, "${packageName}.fileprovider", cacheFile)
+                withContext(Dispatchers.Main) {
+                    importTimeline(uri)
+                    Snackbar.make(binding.root, R.string.photo_timeline_imported, Snackbar.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to import photo timeline", e)
+                withContext(Dispatchers.Main) {
+                    Snackbar.make(binding.root, R.string.import_failed, Snackbar.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun diagnoseSinglePhoto(uri: Uri) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val point = try {
+                val taken = contentResolver.query(uri, arrayOf(MediaStore.Images.Media.DATE_TAKEN), null, null, null)?.use { c ->
+                    if (c.moveToFirst() && !c.isNull(0)) Instant.ofEpochMilli(c.getLong(0)) else null
+                }
+                PhotoExifReader.extract(applicationContext, uri, taken)
+            } catch (e: Exception) { null }
+            withContext(Dispatchers.Main) {
+                if (point != null) {
+                    val msg = getString(R.string.photo_has_location, point.latitude, point.longitude, point.instant.toString())
+                    MaterialAlertDialogBuilder(this@MainActivity)
+                        .setTitle(R.string.photo_diag_title)
+                        .setMessage(msg + "\n\nBạn có thể quét lại thư viện để tạo Timeline từ ảnh này.")
+                        .setPositiveButton(R.string.scan_photo_library) { _, _ -> checkPhotoPermissionAndScan() }
+                        .setNegativeButton(R.string.cancel, null)
+                        .show()
+                } else {
+                    val diag = try {
+                        PhotoLibraryScanner(applicationContext).diagnoseSingle(uri)
+                    } catch (_: Exception) { "" }
+                    MaterialAlertDialogBuilder(this@MainActivity)
+                        .setTitle(R.string.photo_diag_title)
+                        .setMessage(getString(R.string.photo_no_location_detail) + if (diag.isNotBlank()) "\n\n--- Diagnostic ---\n$diag" else "")
+                        .setPositiveButton(R.string.cancel, null)
+                        .show()
+                }
+            }
+        }
+    }
+
+    private fun openAppSettings() {
+        runCatching {
+            startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null)))
+        }
+    }
 
     companion object {
         private const val GOOGLE_MAPS_PACKAGE = "com.google.android.apps.maps"

@@ -3,6 +3,13 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <!-- ACCESS_MEDIA_LOCATION lets the OS return unredacted GPS EXIF on Android 10+.
+         Without it MediaStore redacts GPS to 0/0 even when the file on disk has valid
+         location (exactly what the diagnostic shows: 0/1,0/1,0/1 vs exiftool's 10°44').
+         See exiftoolwrapper-android/MainActivity.requestPermissions and issue #8. -->
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROCESSING" />

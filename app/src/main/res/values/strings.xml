@@ -639,4 +639,27 @@
     <string name="simplify_route_detail_summary">Use summarized Timeline activity for a cleaner route in long-history videos. When off, the most detailed available route is used.</string>
     <string name="keep_past_routes_visible">Keep past routes visible</string>
     <string name="keep_past_routes_visible_summary">Show completed routes as a faint background trail. When off, older movement fades out.</string>
+    <!-- Photo Timeline feature -->
+    <string name="photo_timeline_title">Photo Timeline</string>
+    <string name="photo_timeline_summary">Scan your photo library for geotagged images and create a Timeline JSON you can import and animate.</string>
+    <string name="scan_photo_library">Scan photo library</string>
+    <string name="scanning_photos">Scanning photos…</string>
+    <string name="photos_scanned">Scanned %1$d photos · %2$d with location</string>
+    <string name="no_geotagged_photos">No geotagged photos found. Enable location tagging in your camera and try again.</string>
+    <string name="photo_permission_required">Photo access is needed to read image locations</string>
+    <string name="photo_permission_rationale">Timeline Visualizer reads GPS data from your photos on-device to build a route. Photos themselves are never uploaded. On Android 10+ please also grant “Media location” (ACCESS_MEDIA_LOCATION) — without it the system redacts GPS to 0/0 even when the original photo has location (see exiftoolwrapper-android).</string>
+    <string name="photo_timeline_exported">Photo Timeline saved</string>
+    <string name="export_photo_timeline">Export Photo Timeline JSON</string>
+    <string name="import_photo_timeline">Import into Journal</string>
+    <string name="photo_timeline_imported">Photo Timeline imported</string>
+    <string name="photo_timeline_merge_title">Add photos to existing Timeline?</string>
+    <string name="photo_timeline_merge_message">Found %1$d photo locations. Merge them with your current Timeline and export a combined JSON, or export photos alone.</string>
+    <string name="merge_and_export">Merge and export</string>
+    <string name="export_photos_only">Photos only</string>
+    <string name="photo_json_filename">Photo Timeline.json</string>
+    <string name="merged_timeline_filename">Timeline with photos.json</string>
+    <string name="pick_single_photo">Check a single photo</string>
+    <string name="photo_diag_title">Photo diagnostic</string>
+    <string name="photo_no_location_detail">This image has no GPS data. On Android, open Camera → Settings → Location tag / Save location → ON, then take a new photo.</string>
+    <string name="photo_has_location">Found: %1$.5f, %2$.5f · %3$s</string>
 </resources>

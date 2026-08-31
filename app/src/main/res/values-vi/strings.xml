@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Trình trực quan hóa Timeline</string>
+    <string name="app_name">Timeline visualizer</string>
     <string name="import_timeline">Chọn tệp</string>
     <string name="how_to_export">Lấy tệp Timeline</string>
     <string name="restore_timeline_help">Khôi phục Timeline Google Maps</string>
@@ -639,4 +639,27 @@
     <string name="simplify_route_detail_summary">Sử dụng hoạt động tóm tắt của Timeline để có một tuyến đường sạch hơn trong các video lịch sử dài. Khi tắt, tuyến đường chi tiết nhất có sẵn sẽ được sử dụng.</string>
     <string name="keep_past_routes_visible">Giữ các tuyến đường trước đây hiển thị</string>
     <string name="keep_past_routes_visible_summary">Hiển thị các tuyến đường đã hoàn thành như một dấu vết mờ nhạt ở nền. Khi tắt, chuyển động cũ sẽ mờ đi.</string>
+    <!-- Photo Timeline feature -->
+    <string name="photo_timeline_title">Ảnh → Timeline</string>
+    <string name="photo_timeline_summary">Quét thư viện ảnh để lấy vị trí GPS từ ảnh đã chụp và tạo tệp Timeline JSON có thể nhập và tạo video.</string>
+    <string name="scan_photo_library">Quét thư viện ảnh</string>
+    <string name="scanning_photos">Đang quét ảnh…</string>
+    <string name="photos_scanned">Đã quét %1$d ảnh · %2$d ảnh có vị trí</string>
+    <string name="no_geotagged_photos">Không tìm thấy ảnh có gắn vị trí. Hãy bật gắn vị trí trong camera và thử lại.</string>
+    <string name="photo_permission_required">Cần quyền truy cập ảnh để đọc vị trí ảnh</string>
+    <string name="photo_permission_rationale">Timeline Visualizer chỉ đọc dữ liệu GPS từ ảnh ngay trên thiết bị để tạo lộ trình. Ảnh không bao giờ được tải lên. Trên Android 10+ cần thêm quyền “Vị trí media” (ACCESS_MEDIA_LOCATION) — thiếu quyền này hệ thống sẽ che GPS thành 0/0 dù ảnh gốc có GPS (như chẩn đoán 0/1,0/1,0/1 vs exiftool 10°44\').</string>
+    <string name="photo_timeline_exported">Đã lưu Photo Timeline</string>
+    <string name="export_photo_timeline">Xuất JSON Photo Timeline</string>
+    <string name="import_photo_timeline">Nhập vào Nhật Ký</string>
+    <string name="photo_timeline_imported">Đã nhập Photo Timeline</string>
+    <string name="photo_timeline_merge_title">Gộp ảnh vào Timeline hiện có?</string>
+    <string name="photo_timeline_merge_message">Tìm thấy %1$d vị trí ảnh. Gộp với Timeline hiện tại và xuất JSON kết hợp, hoặc chỉ xuất riêng ảnh.</string>
+    <string name="merge_and_export">Gộp và xuất</string>
+    <string name="export_photos_only">Chỉ ảnh</string>
+    <string name="photo_json_filename">Photo Timeline.json</string>
+    <string name="merged_timeline_filename">Timeline with photos.json</string>
+    <string name="pick_single_photo">Kiểm tra một ảnh</string>
+    <string name="photo_diag_title">Chẩn đoán ảnh</string>
+    <string name="photo_no_location_detail">Ảnh này không có dữ liệu GPS. Hãy mở Camera → Cài đặt → Gắn thẻ vị trí / Lưu vị trí → BẬT, sau đó chụp ảnh mới.</string>
+    <string name="photo_has_location">Tìm thấy: %1$.5f, %2$.5f · %3$s</string>
 </resources>
