@@ -472,6 +472,8 @@
     <string name="manage_presets_summary">Các preset tích hợp sẵn là chỉ đọc. Chọn một preset người dùng để đổi tên hoặc xóa nó.</string>
     <string name="no_user_presets">Chưa lưu preset người dùng nào.</string>
     <string name="geonames_attribution">Tên địa điểm ngoại tuyến sử dụng dữ liệu GeoNames theo CC BY 4.0.</string>
+    <string name="no_attribution">Tôi chỉ là người thêm tính năng xuất ảnh -> timeline</string>
+    <string name="original_project">https://github.com/mahlernim/google-timeline-visualizer đây là dự án gốc</string>
     <string name="custom_recap">Tổng hợp tùy chỉnh</string>
     <string name="custom_recap_summary">Chọn ngày bắt đầu và kết thúc chính xác từ Nhật ký du lịch của bạn.</string>
     <string name="raw_data_video">Video dữ liệu thô</string>

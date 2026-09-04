@@ -370,6 +370,8 @@
     <string name="edit_project">Bearbeiten</string>
     <string name="find_trips">Reisen finden</string>
     <string name="geonames_attribution">Offline-Zielnamen verwenden GeoNames-Daten unter CC BY 4.0.</string>
+    <string name="no_attribution">Ich habe nur die Funktion zum Exportieren von Fotos in die Timeline hinzugefügt.</string>
+    <string name="original_project">https://github.com/mahlernim/google-timeline-visualizer ist das ursprüngliche Projekt.</string>
     <string name="import_or_update">Aktualisierte Timeline importieren</string>
     <string name="library">Bibliothek</string>
     <string name="library_delete_partial">%1$d Videos gelöscht. %2$d konnten nicht gelöscht werden und bleiben in der Bibliothek.</string>

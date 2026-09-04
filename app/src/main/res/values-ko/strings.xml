@@ -413,6 +413,8 @@
     <string name="dismiss_suggestion">숨기기</string>
     <string name="find_trips">여행 찾기</string>
     <string name="geonames_attribution">오프라인 목적지 이름은 CC BY 4.0에 따라 GeoNames 데이터를 사용합니다.</string>
+    <string name="no_attribution">저는 사진을 타임라인으로 내보내는 기능만 추가했습니다.</string>
+    <string name="original_project">https://github.com/mahlernim/google-timeline-visualizer 원본 프로젝트입니다.</string>
     <string name="import_or_update">최신 Timeline 가져오기</string>
     <string name="library">라이브러리</string>
     <string name="library_empty">아직 저장된 여행이나 요약이 없습니다. ‘만들기’에서 시작하세요.</string>

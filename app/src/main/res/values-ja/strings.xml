@@ -373,6 +373,8 @@
     <string name="edit_project">編集</string>
     <string name="find_trips">旅行を探す</string>
     <string name="geonames_attribution">オフラインの宛先名には、CC BY 4.0 に基づく GeoNames データが使用されます。</string>
+    <string name="no_attribution">私は写真をタイムラインにエクスポートする機能を追加しただけです。</string>
+    <string name="original_project">https://github.com/mahlernim/google-timeline-visualizer が元のプロジェクトです。</string>
     <string name="import_or_update">最新のTimelineを読み込む</string>
     <string name="library">ライブラリ</string>
     <string name="library_delete_partial">動画%1$d本を削除しました。%2$d本は削除できず、ライブラリに残っています。</string>

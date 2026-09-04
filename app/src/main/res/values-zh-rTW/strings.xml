@@ -366,6 +366,8 @@
     <string name="edit_project">編輯</string>
     <string name="find_trips">尋找行程</string>
     <string name="geonames_attribution">離線目的地名稱使用 CC BY 4.0 下的 GeoNames 資料。</string>
+    <string name="no_attribution">我只是新增了將照片匯出到時間軸的功能。</string>
+    <string name="original_project">https://github.com/mahlernim/google-timeline-visualizer 是原始專案。</string>
     <string name="import_or_update">匯入最新的時間軸</string>
     <string name="library">媒體庫</string>
     <string name="library_delete_partial">已刪除 %1$d 部影片。%2$d 部無法刪除，仍保留在媒體庫中。</string>

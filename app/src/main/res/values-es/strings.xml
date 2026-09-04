@@ -375,6 +375,8 @@
     <string name="edit_project">Editar</string>
     <string name="find_trips">Buscar viajes</string>
     <string name="geonames_attribution">Los nombres de destinos sin conexión utilizan datos GeoNames en CC BY 4.0.</string>
+    <string name="no_attribution">Solo agregué la función de exportar fotos a la línea de tiempo.</string>
+    <string name="original_project">https://github.com/mahlernim/google-timeline-visualizer es el proyecto original.</string>
     <string name="import_or_update">Importar Timeline actualizado</string>
     <string name="library">Biblioteca</string>
     <string name="library_delete_partial">Se eliminaron %1$d vídeos. No se pudieron eliminar %2$d y permanecen en la biblioteca.</string>

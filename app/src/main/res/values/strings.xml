@@ -472,6 +472,8 @@
     <string name="manage_presets_summary">Built-in presets are read-only. Select a user preset to rename or delete it.</string>
     <string name="no_user_presets">No user presets saved yet.</string>
     <string name="geonames_attribution">Offline destination names use GeoNames data under CC BY 4.0.</string>
+    <string name="no_attribution">I only added the feature to export photos to timeline.</string>
+    <string name="original_project">https://github.com/mahlernim/google-timeline-visualizer is the original project.</string>
     <string name="custom_recap">Custom recap</string>
     <string name="custom_recap_summary">Choose exact start and end dates from your Travel Journal.</string>
     <string name="raw_data_video">Raw data video</string>
