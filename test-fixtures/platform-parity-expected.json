@@ -1,8 +1,0 @@
-{
-  "pointCount": 3,
-  "latitudes": [37.5, 37.55, 37.6],
-  "firstInstant": "2026-01-01T00:00:00Z",
-  "lastInstant": "2026-01-01T01:00:00Z",
-  "selectedDurationSeconds": 10,
-  "outroSeconds": 1.5
-}
