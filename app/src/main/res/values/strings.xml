@@ -145,6 +145,7 @@
     <string name="update_ready">The update is ready to install.</string>
     <string name="restart_to_update">Restart</string>
     <string name="project_on_github">Project on GitHub</string>
+    <string name="buy_me_a_coffee">Buy me a coffee</string>
     <string name="update_page_unavailable">Could not open the update page</string>
     <string name="web_page_unavailable">Could not open the web page</string>
     <!-- java.time.DateTimeFormatter pattern, deliberately developer-owned: letters a-z are

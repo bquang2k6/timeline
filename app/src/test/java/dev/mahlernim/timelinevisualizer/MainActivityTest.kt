@@ -563,7 +563,7 @@ class MainActivityTest {
         val intent = shadowOf(activity).nextStartedActivity
         assertEquals(Intent.ACTION_VIEW, intent.action)
         assertEquals(
-            "https://github.com/mahlernim/google-timeline-visualizer/blob/main/docs/privacy.md",
+            "https://github.com/bquang2k6/timeline/blob/main/docs/privacy.md",
             intent.dataString,
         )
     }
@@ -594,7 +594,7 @@ class MainActivityTest {
         val intent = shadowOf(activity).nextStartedActivity
         assertEquals(Intent.ACTION_VIEW, intent.action)
         assertEquals(
-            "https://github.com/mahlernim/google-timeline-visualizer/blob/main/docs/privacy.md",
+            "https://github.com/bquang2k6/timeline/blob/main/docs/privacy.md",
             intent.dataString,
         )
     }

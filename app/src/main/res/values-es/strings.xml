@@ -143,6 +143,7 @@
     <string name="update_ready">La actualización está lista para instalarse.</string>
     <string name="restart_to_update">Reiniciar</string>
     <string name="project_on_github">Proyecto en GitHub</string>
+    <string name="buy_me_a_coffee">Buy me a coffee</string>
     <string name="update_page_unavailable">No se pudo abrir la página de actualización</string>
     <string name="web_page_unavailable">No se pudo abrir la página web</string>
     <string name="timeline_video">Vídeo Timeline</string>

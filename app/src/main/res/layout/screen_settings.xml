@@ -198,5 +198,6 @@
         <com.google.android.material.button.MaterialButton android:id="@+id/privacyPolicyButton" style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:maxLines="1" android:text="@string/privacy_policy" />
         <com.google.android.material.button.MaterialButton android:id="@+id/checkUpdatesButton" style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:maxLines="1" android:text="@string/check_for_updates" />
         <com.google.android.material.button.MaterialButton android:id="@+id/githubProjectButton" style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:maxLines="1" android:text="@string/project_on_github" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/buyMeACoffeeButton" style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:maxLines="1" android:text="@string/buy_me_a_coffee" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

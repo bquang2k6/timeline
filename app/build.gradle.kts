@@ -59,8 +59,8 @@ android {
         create("github") {
             dimension = "distribution"
             buildConfigField("boolean", "IS_JOURNAL_LAB", "true")
-            buildConfigField("String", "UPDATE_URL", "\"https://github.com/mahlernim/google-timeline-visualizer/releases/latest\"")
-            buildConfigField("String", "UPDATE_FALLBACK_URL", "\"https://github.com/mahlernim/google-timeline-visualizer/releases/latest\"")
+            buildConfigField("String", "UPDATE_URL", "\"https://github.com/bquang2k6/timeline/releases/latest\"")
+            buildConfigField("String", "UPDATE_FALLBACK_URL", "\"https://github.com/bquang2k6/timeline/releases/latest\"")
         }
         create("play") {
             dimension = "distribution"
@@ -75,8 +75,8 @@ android {
             versionName = "3.0.0-journal-lab.20"
             manifestPlaceholders["appLabel"] = "Journal Lab"
             buildConfigField("boolean", "IS_JOURNAL_LAB", "true")
-            buildConfigField("String", "UPDATE_URL", "\"https://github.com/mahlernim/google-timeline-visualizer/releases/tag/journal-lab-20\"")
-            buildConfigField("String", "UPDATE_FALLBACK_URL", "\"https://github.com/mahlernim/google-timeline-visualizer/releases\"")
+            buildConfigField("String", "UPDATE_URL", "\"https://github.com/bquang2k6/timeline/releases/tag/journal-lab-20\"")
+            buildConfigField("String", "UPDATE_FALLBACK_URL", "\"https://github.com/bquang2k6/timeline/releases\"")
         }
     }
 

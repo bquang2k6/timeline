@@ -134,6 +134,7 @@
     <string name="update_ready">업데이트를 설치할 준비가 되었습니다.</string>
     <string name="restart_to_update">다시 시작</string>
     <string name="project_on_github">GitHub 프로젝트</string>
+    <string name="buy_me_a_coffee">Buy me a coffee</string>
     <string name="update_page_unavailable">업데이트 페이지를 열 수 없습니다</string>
     <string name="web_page_unavailable">웹페이지를 열 수 없습니다</string>
     <string name="render_date_pattern" tools:ignore="ExtraTranslation">yyyy년 M월</string>

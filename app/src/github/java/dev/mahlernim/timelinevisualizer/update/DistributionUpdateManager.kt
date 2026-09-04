@@ -90,8 +90,8 @@ class DistributionUpdateManager(
 
     private companion object {
         const val UPDATE_MANIFEST_URL =
-            "https://github.com/mahlernim/google-timeline-visualizer/releases/latest/download/update.json"
-        const val RELEASE_PATH_PREFIX = "/mahlernim/google-timeline-visualizer/releases/tag/v"
+            "https://github.com/bquang2k6/timeline/releases/latest/download/update.json"
+        const val RELEASE_PATH_PREFIX = "/bquang2k6/timeline/releases/tag/v"
         const val TIMEOUT_MILLIS = 5_000
     }
 }

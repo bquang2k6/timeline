@@ -135,6 +135,7 @@
     <string name="update_ready">更新已准备好安装。</string>
     <string name="restart_to_update">重新启动</string>
     <string name="project_on_github">GitHub 上的项目</string>
+    <string name="buy_me_a_coffee">Buy me a coffee</string>
     <string name="update_page_unavailable">无法打开更新页面</string>
     <string name="web_page_unavailable">无法打开网页</string>
     <string name="render_date_pattern" tools:ignore="ExtraTranslation">yyyy年M月</string>

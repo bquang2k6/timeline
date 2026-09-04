@@ -134,6 +134,7 @@
     <string name="update_ready">アップデートをインストールできます。</string>
     <string name="restart_to_update">再起動</string>
     <string name="project_on_github">GitHubのプロジェクト</string>
+    <string name="buy_me_a_coffee">Buy me a coffee</string>
     <string name="update_page_unavailable">更新ページを開けませんでした</string>
     <string name="web_page_unavailable">ウェブページを開けませんでした</string>
     <string name="render_date_pattern" tools:ignore="ExtraTranslation">yyyy年M月</string>

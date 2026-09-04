@@ -10,8 +10,13 @@ exact dates, preview the Journey, and create an MP4 ready to watch or share.
 ![New video](play-store/assets/screenshots/en-US/03-selected-period.png)
 
 ![Android](https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white)
-![License](https://img.shields.io/github/license/mahlernim/google-timeline-visualizer)
-![Build](https://github.com/mahlernim/google-timeline-visualizer/actions/workflows/validate.yml/badge.svg)
+![License](https://img.shields.io/github/license/bquang2k6/timeline)
+![Build](https://github.com/bquang2k6/timeline/actions/workflows/validate.yml/badge.svg)
+
+> This is a maintained fork of the original open-source project by
+> [MahlerLab](https://github.com/mahlernim)
+> ([mahlernim/google-timeline-visualizer](https://github.com/mahlernim/google-timeline-visualizer)).
+> Original code, brand, and MIT license are preserved. All credit to the original author.
 
 ## Use on iPhone
 
@@ -33,7 +38,7 @@ use Safari's Share menu and choose **Add to Home Screen**.
 ## Install on Android
 
 The app is not yet on Google Play. Install it from this repository's
-[latest release](https://github.com/mahlernim/google-timeline-visualizer/releases/latest):
+[latest release](https://github.com/bquang2k6/timeline/releases/latest):
 
 1. Under **Assets**, download the latest `TimelineVisualizer-*.apk` file on your
    phone. Do not download the `.sha256` checksum file.
@@ -218,7 +223,8 @@ Basemap attribution is displayed in every preview and exported video:
 ## Support
 
 If Timeline Visualizer was useful to you, you can leave an optional
-[one-time contribution](https://github.com/sponsors/mahlernim?frequency=one-time).
+[one-time contribution](https://github.com/sponsors/mahlernim?frequency=one-time) to the original
+author, or [buy the maintainer a coffee](https://www.buymeacoffee.com/bquang2k6).
 Support is appreciated but never required and does not include paid features,
 priority support, or a commitment to future development.
 

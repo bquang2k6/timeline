@@ -145,6 +145,7 @@
     <string name="update_ready">Bản cập nhật đã sẵn sàng để cài đặt.</string>
     <string name="restart_to_update">Khởi động lại</string>
     <string name="project_on_github">Dự án trên GitHub</string>
+    <string name="buy_me_a_coffee">Buy me a coffee</string>
     <string name="update_page_unavailable">Không thể mở trang cập nhật</string>
     <string name="web_page_unavailable">Không thể mở trang web</string>
     <!-- java.time.DateTimeFormatter pattern, deliberately developer-owned: letters a-z are

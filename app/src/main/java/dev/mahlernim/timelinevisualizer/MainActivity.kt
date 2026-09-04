@@ -615,6 +615,7 @@ class MainActivity : AppCompatActivity() {
         home.journalSetupIllustration.illustration = JournalOnboardingIllustration.IMPORT
         settingsScreen.privacyPolicyButton.setOnClickListener { openPrivacyPolicy() }
         settingsScreen.githubProjectButton.setOnClickListener { openWebPage(PROJECT_URL, R.string.web_page_unavailable) }
+        settingsScreen.buyMeACoffeeButton.setOnClickListener { openWebPage(BUY_ME_A_COFFEE_URL, R.string.web_page_unavailable) }
         settingsScreen.checkUpdatesButton.setOnClickListener { openUpdates() }
         settingsScreen.saveDefaultsAsPresetButton.setOnClickListener { saveVideoDefaultsAsPreset() }
         settingsScreen.managePresetsButton.setOnClickListener { showPresetManager() }
@@ -6665,19 +6666,20 @@ class MainActivity : AppCompatActivity() {
         internal const val ACTION_SHARE_VIDEO = "dev.mahlernim.timelinevisualizer.action.SHARE_VIDEO"
         internal const val ACTION_RETRY_VIDEO = "dev.mahlernim.timelinevisualizer.action.RETRY_VIDEO"
         const val ACTION_OPEN_JOURNAL = "dev.mahlernim.timelinevisualizer.action.OPEN_JOURNAL"
-        private const val PROJECT_URL = "https://github.com/mahlernim/google-timeline-visualizer"
+        private const val PROJECT_URL = "https://github.com/bquang2k6/timeline"
+        private const val BUY_ME_A_COFFEE_URL = "https://www.buymeacoffee.com/bquang2k6"
         private const val PRIVACY_URL =
-            "https://github.com/mahlernim/google-timeline-visualizer/blob/main/docs/privacy.md"
+            "https://github.com/bquang2k6/timeline/blob/main/docs/privacy.md"
         private const val PRIVACY_URL_KO =
-            "https://github.com/mahlernim/google-timeline-visualizer/blob/main/docs/privacy.ko.md"
+            "https://github.com/bquang2k6/timeline/blob/main/docs/privacy.ko.md"
         private const val PRIVACY_URL_JA =
-            "https://github.com/mahlernim/google-timeline-visualizer/blob/main/docs/privacy.ja.md"
+            "https://github.com/bquang2k6/timeline/blob/main/docs/privacy.ja.md"
         private const val RESTORE_GUIDE_URL =
-            "https://github.com/mahlernim/google-timeline-visualizer/blob/main/docs/restore-google-maps-timeline.md"
+            "https://github.com/bquang2k6/timeline/blob/main/docs/restore-google-maps-timeline.md"
         private const val RESTORE_GUIDE_URL_KO =
-            "https://github.com/mahlernim/google-timeline-visualizer/blob/main/docs/restore-google-maps-timeline.ko.md"
+            "https://github.com/bquang2k6/timeline/blob/main/docs/restore-google-maps-timeline.ko.md"
         private const val RESTORE_GUIDE_URL_JA =
-            "https://github.com/mahlernim/google-timeline-visualizer/blob/main/docs/restore-google-maps-timeline.ja.md"
+            "https://github.com/bquang2k6/timeline/blob/main/docs/restore-google-maps-timeline.ja.md"
         private const val TAG = "TimelineVisualizer"
         private const val JOURNAL_PROGRESS_MAX = 1_000
         private const val JOURNAL_ROUTE_PROGRESS_DELAY_MILLIS = 2_000L

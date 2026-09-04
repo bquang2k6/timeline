@@ -12,7 +12,7 @@ class GithubUpdateManifestTest {
             {
               "versionCode": 51,
               "versionName": "3.0.9",
-              "releaseUrl": "https://github.com/mahlernim/google-timeline-visualizer/releases/tag/v3.0.9"
+              "releaseUrl": "https://github.com/bquang2k6/timeline/releases/tag/v3.0.9"
             }
             """.trimIndent(),
         )?.toAvailableUpdate()
@@ -20,7 +20,7 @@ class GithubUpdateManifestTest {
         assertEquals(51, update?.versionCode)
         assertEquals("3.0.9", update?.versionName)
         assertEquals(
-            "https://github.com/mahlernim/google-timeline-visualizer/releases/tag/v3.0.9",
+            "https://github.com/bquang2k6/timeline/releases/tag/v3.0.9",
             update?.releaseUrl,
         )
     }
@@ -47,7 +47,7 @@ class GithubUpdateManifestTest {
             {
               "versionCode": 0,
               "versionName": "3.0.9",
-              "releaseUrl": "https://github.com/mahlernim/google-timeline-visualizer/releases/tag/v3.0.9"
+              "releaseUrl": "https://github.com/bquang2k6/timeline/releases/tag/v3.0.9"
             }
             """.trimIndent(),
         )
